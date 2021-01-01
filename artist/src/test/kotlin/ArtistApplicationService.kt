@@ -1,11 +1,25 @@
+import adapter.InMemoryArtistRepository
+import adapter.InMemoryMusicRepository
+import adapter.InMemoryVocaloidRepository
+import application.ArtistApplicationService
+import domain.artist.ArtistId
+import domain.music.MusicId
+import domain.vocaloid.VocaloidId
+import domain.artist.NotFoundArtistByName
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.*
 import strikt.api.*
 import strikt.assertions.*
 
 object ArtistApplicationServiceFeature : Spek({
-    Feature("ArtistApplicationService") {
-        val applicationService by memoized { ArtistApplicationService() }
+    Feature("application.ArtistApplicationService") {
+        val applicationService by memoized {
+            ArtistApplicationService(
+                    InMemoryArtistRepository(),
+                    InMemoryMusicRepository(),
+                    InMemoryVocaloidRepository()
+            )
+        }
 
         Scenario("enroll new artist") {
             lateinit var createdArtistId: ArtistId
@@ -41,10 +55,9 @@ object ArtistApplicationServiceFeature : Spek({
             }
 
             Then("it can't find artist id using before name('$enrolledName')") {
-//                 TODO: uncomment this assertion.
-//                expectCatching { applicationService.searchByName(enrolledName) }
-//                        .isFailure()
-//                        .isA<NotFoundArtistByName>()
+                expectCatching { applicationService.searchByName(enrolledName) }
+                        .isFailure()
+                        .isA<NotFoundArtistByName>()
             }
         }
 
